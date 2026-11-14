@@ -233,9 +233,9 @@ class AboutScreen extends StatelessWidget {
             const SizedBox(height: 20),
             const Text('Author Information', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             const Divider(),
-            const Text('• Name: Nazreen'), // Author Info[cite: 2]
-            const Text('• Matric No: [Insert Matric Number]'), // Author Info[cite: 2]
-            const Text('• Course: Mobile Technology'), // Author Info[cite: 2]
+            const Text('• Name: Nazreen Asyraaf bin Arman'), // Author Info[cite: 2]
+            const Text('• Matric No: 2024670682'), // Author Info[cite: 2]
+            const Text('• Course: ICT602 - MOBILE TECHNOLOGY AND DEVELOPMENT'), // Author Info[cite: 2]
             const SizedBox(height: 20),
             const Text('GitHub Repository', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             const Divider(),
