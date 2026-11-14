@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 void main() {
   runApp(const ExcessBaggageApp());
@@ -28,7 +29,6 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
 
-  // Pages for Bottom Navigation Bar
   final List<Widget> _pages = [
     const HomeScreen(),
     const AboutScreen(),
@@ -68,19 +68,16 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  // Controllers for inputs
   final TextEditingController _weightController = TextEditingController();
   final TextEditingController _rateController = TextEditingController();
 
-  String _ticketClass = 'Economy'; // Options: Economy, Business[cite: 1]
+  String _ticketClass = 'Economy'; // Economy = 20kg, Business = 40kg[cite: 1]
 
-  // Outputs[cite: 1]
   String _excessWeightResult = '';
   String _excessChargeResult = '';
   String _totalPayableResult = '';
 
   void _calculateFee() {
-    // Basic validation
     if (_weightController.text.isEmpty || _rateController.text.isEmpty) {
       setState(() {
         _excessWeightResult = 'Please fill in all inputs';
@@ -96,16 +93,16 @@ class _HomeScreenState extends State<HomeScreen> {
     // X is 20 kg for economy and 40 kg for business[cite: 1]
     double allowance = (_ticketClass == 'Economy') ? 20.0 : 40.0;
 
-    // Excess baggage weight calculation[cite: 1]
+    // Excess baggage weight (never negative)[cite: 1]
     double excessWeight = weight - allowance;
     if (excessWeight < 0) {
-      excessWeight = 0.0; // Never negative[cite: 1]
+      excessWeight = 0.0;
     }
 
-    // Excess baggage charge calculation[cite: 1]
+    // Excess baggage charge = excess weight * rate[cite: 1]
     double excessCharge = excessWeight * rate;
 
-    // Total amount payable with 8% service tax[cite: 1]
+    // Total amount payable = excess charge + (8% * excess charge)[cite: 1]
     double tax = excessCharge * 0.08;
     double totalPayable = excessCharge + tax;
 
@@ -133,10 +130,10 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             const SizedBox(height: 16),
 
-            // Input 1: Baggage Weight[cite: 1]
+            // Input 1: Checked Baggage Weight[cite: 1]
             TextField(
               controller: _weightController,
-              keyboardType: TextInputType.number,
+              keyboardType: const TextInputType.numberWithOptions(decimal: true),
               decoration: const InputDecoration(
                 labelText: 'Checked Baggage Weight (kg)',
                 border: OutlineInputBorder(),
@@ -144,7 +141,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             const SizedBox(height: 16),
 
-            // Input 2: Ticket Class (Dropdown widget)
+            // Input 2: Ticket Class Dropdown[cite: 1, 2]
             InputDecorator(
               decoration: const InputDecoration(
                 labelText: 'Ticket Class',
@@ -155,8 +152,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   value: _ticketClass,
                   isExpanded: true,
                   items: const [
-                    DropdownMenuItem(value: 'Economy', child: Text('Economy (20 kg allowance)')),
-                    DropdownMenuItem(value: 'Business', child: Text('Business (40 kg allowance)')),
+                    DropdownMenuItem(value: 'Economy', child: Text('Economy (20 kg allowance)[cite: 1]')),
+                    DropdownMenuItem(value: 'Business', child: Text('Business (40 kg allowance)[cite: 1]')),
                   ],
                   onChanged: (String? newValue) {
                     setState(() {
@@ -171,22 +168,21 @@ class _HomeScreenState extends State<HomeScreen> {
             // Input 3: Rate per kg[cite: 1]
             TextField(
               controller: _rateController,
-              keyboardType: TextInputType.number,
+              keyboardType: const TextInputType.numberWithOptions(decimal: true),
               decoration: const InputDecoration(
-                labelText: 'Excess Baggage Rate per kg (RM)',
+                labelText: 'Excess Baggage Rate per kg (RM)[cite: 1]',
                 border: OutlineInputBorder(),
               ),
             ),
             const SizedBox(height: 20),
 
-            // Calculate Button
             ElevatedButton(
               onPressed: _calculateFee,
               child: const Text('Calculate Fee', style: TextStyle(fontSize: 16)),
             ),
             const SizedBox(height: 30),
 
-            // Outputs Section[cite: 1]
+            // Outputs[cite: 1]
             const Text(
               'Results',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
@@ -212,6 +208,14 @@ class _HomeScreenState extends State<HomeScreen> {
 class AboutScreen extends StatelessWidget {
   const AboutScreen({Key? key}) : super(key: key);
 
+  // Function to launch the GitHub URL in the external browser
+  Future<void> _launchGitHubURL() async {
+    final Uri url = Uri.parse('https://github.com/Nazras/Excess-baggage-fee-app');
+    if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
+      throw Exception('Could not launch $url');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -222,24 +226,34 @@ class AboutScreen extends StatelessWidget {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: const [
-            Center(
-              child: Icon(Icons.luggage, size: 80, color: Colors.blue),
+          children: [
+            const Center(
+              child: Icon(Icons.luggage, size: 80, color: Colors.blue), // Application Icon[cite: 2]
             ),
-            SizedBox(height: 20),
-            Text('Author Information', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            Divider(),
-            Text('• Name: Nazreen Asyraaf bin Arman'),
-            Text('• Matric No: 2024670682'),
-            Text('• ICT602 - MOBILE TECHNOLOGY AND DEVELOPMENT'),
-            SizedBox(height: 20),
-            Text('GitHub Repository', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            Divider(),
-            Text('https://github.com/nazreen/excess-baggage-estimator',
-                style: TextStyle(color: Colors.blue)),
-            SizedBox(height: 20),
-            Center(
-              child: Text('© 2026 Nazreen. All rights reserved.',
+            const SizedBox(height: 20),
+            const Text('Author Information', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const Divider(),
+            const Text('• Name: Nazreen'), // Author Info[cite: 2]
+            const Text('• Matric No: [Insert Matric Number]'), // Author Info[cite: 2]
+            const Text('• Course: Mobile Technology'), // Author Info[cite: 2]
+            const SizedBox(height: 20),
+            const Text('GitHub Repository', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const Divider(),
+            // Clickable GitHub Repository URL[cite: 2]
+            InkWell(
+              onTap: _launchGitHubURL,
+              child: const Text(
+                'https://github.com/Nazras/Excess-baggage-fee-app',
+                style: TextStyle(
+                  color: Colors.blue,
+                  decoration: TextDecoration.underline,
+                  fontSize: 15,
+                ),
+              ),
+            ),
+            const SizedBox(height: 30),
+            const Center(
+              child: Text('© 2026 Nazreen. All rights reserved.', // Copyright Notice[cite: 2]
                   style: TextStyle(color: Colors.grey)),
             ),
           ],
